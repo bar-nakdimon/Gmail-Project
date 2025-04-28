@@ -1,0 +1,17 @@
+FROM gcc:latest
+
+RUN apt-get update && apt-get install -y cmake git
+
+COPY . /usr/src/tests
+WORKDIR /usr/src/tests
+
+RUN mkdir build
+WORKDIR /usr/src/tests/build
+
+RUN rm -rf build && mkdir build
+
+
+RUN cmake .. && make
+
+# Default command runs all tests
+CMD ["./runTests"]
