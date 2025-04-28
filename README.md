@@ -1,9 +1,10 @@
-# EX-1
-https://github.com/yonatansh45/EX-1.git
+## Gmail-Project
 
-## EX-1: Bloom Filter URL Blacklisting
+This project is part of an Advanced Programming course at Bar-Ilan University, developed by a team of three students.
 
-This project implements a Bloom Filter in C++ that blacklists URLs and checks them efficiently using hash functions. It includes a CLI for adding/checking URLs and persists the filter between runs.
+The goal of the project is to design and implement a full-stack Gmail-like email system, focusing on backend architecture, API development, secure authentication, and scalable deployment using modern software engineering principles.
+
+This Part implements a Bloom Filter in C++ that blacklists URLs and checks them efficiently using hash functions. It includes a CLI for adding/checking URLs and persists the filter between runs.
 
 **The program is designed to:**
 - Add URLs to a blacklist using configurable hash functions
