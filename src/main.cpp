@@ -1,65 +1,56 @@
-#include <iostream>
-#include "BloomFilter.h"
-#include "InputValidator.h"
+
+#include "Server/Server.h"             // Server class definition
+#include "Bloom/InputValidator.h"      // Input validation utilities
+#include <string>
+#include <vector>
+#include <algorithm>                  // For std::all_of
+#include <cctype>                     // For std::isdigit
+#include <sstream>
 
 /**
- * @brief Entry point of the program. 
- *        Initializes a Bloom filter using a configuration line, 
- *        then continuously reads commands to add or check URLs.
- *
- * @return int Exit status (0 for success).
+ * Entry point of the server application.
+ * Expects command-line arguments in the format:
+ * ./server <PORT> <FILTER_SIZE> <HASH_DEPTH_1> <HASH_DEPTH_2> ...
  */
-int main() {
-    std::string line;
-    size_t size;
-    std::vector<int> config;
+int main(int argc, char* argv[]) {
+    // Check if there are at least 3 arguments (program name + 2 others)
+    if (argc < 3) return 1;
 
-    // Read the initial config line from user input (e.g., "256 2 3 4")
-    // This sets the bit array size and hash function depths
-    while (std::getline(std::cin, line)) {
-        if (parseInitialConfig(line, size, config)) break;
+    // Reject any argument containing whitespace (invalid input)
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        if (containsAnyWhitespace(arg)) return 1;
     }
 
-    // Create and initialize the Bloom filter using the provided config
-    BloomFilter bf(size, config, "filter_data.txt");
+    std::string portStr = argv[1];        // Port string from user input
 
-    // Continuously read commands from input: either to add or check a URL
-    while (std::getline(std::cin, line)) {
-        int command;
-        std::string url;
+    // Validate port string is a number
+    if (portStr.empty() || !std::all_of(portStr.begin(), portStr.end(), ::isdigit)) return 1;
 
-        // Parse command line: either "1 url" (add) or "2 url" (check)
-        if (!parseCommandLine(line, command, url)) continue;
+    int port = std::stoi(portStr);        // Convert port string to integer
 
-        switch (command) {
-            case 1:
-                // Add the URL to the Bloom filter
-                bf.add(url);
-                break;
+    // Validate port range using helper (must be between 1024–65535)
+    if (!isValidPort(port)) return 1;
 
-            case 2: {
-                // Check if the URL might be in the blacklist using the Bloom filter
-                bool result = bf.check(url);
+    // Reconstruct configuration line (space-separated values after port)
+    std::string configLine;
+    for (int i = 2; i < argc; ++i) {
+        configLine += argv[i];
+        if (i != argc - 1) configLine += " ";
+    }
 
-                if (result) {
-                    std::cout << "true";
+    size_t filterSize;
+    std::vector<int> hashFuncs;
 
-                    // Double-check if it's a real match (not a false positive)
-                    result = bf.doubleCheck(url);
-                    std::cout << " " << (result ? "true" : "false");
-                } else {
-                    // Definitely not in the blacklist
-                    std::cout << "false";
-                }
+    // Validate the config line and extract filter size and hash function depths
+    if (!parseInitialConfig(configLine, filterSize, hashFuncs)) return 1;
 
-                std::cout << std::endl;
-                break;
-            }
-
-            default:
-                // Ignore unsupported commands
-                break;
-        }
+    try {
+        // Create and start the server with port and config (IP removed)
+        Server server(port, configLine);
+        server.run();
+    } catch (...) {
+        return 1;
     }
 
     return 0;
