@@ -1,3 +1,6 @@
+# Build directory (CMake, Docker, etc.)
+build/
+
 # Prerequisites
 *.d
 
@@ -30,6 +33,3 @@
 *.exe
 *.out
 *.app
-
-# Ignore build artifacts
-build/

@@ -8,10 +8,8 @@ WORKDIR /usr/src/tests
 RUN mkdir build
 WORKDIR /usr/src/tests/build
 
-RUN rm -rf build && mkdir build
-
-
 RUN cmake .. && make
 
-# Default command runs all tests
-CMD ["./runTests"]
+# Start server + wait + run tests
+CMD sh -c './server 5555 16 1 & sleep 1 && ./runTests'
+

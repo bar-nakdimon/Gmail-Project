@@ -47,6 +47,9 @@ public:
      */
     bool doubleCheck(const std::string& url) const;
 
+    bool remove(const std::string& url);
+
+
     /**
      * @brief Saves the current bit array, hash configuration, and blacklist to a file.
      */
@@ -57,6 +60,8 @@ public:
      *        This restores the filter's previous state.
      */
     void load();
+   
+
 };
 
 #endif

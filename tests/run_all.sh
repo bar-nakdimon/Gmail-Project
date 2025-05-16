@@ -6,11 +6,16 @@
 
 # Step 1: Build Docker image
 
-docker build --no-cache -f ../Dockerfile.test -t bloomtest ..
+# Build Docker image (optional: can remove if already built)
+docker build -f Dockerfile.test -t bloomtest .
 if [ $? -ne 0 ]; then
     echo "Docker build failed. Exiting."
     exit 1
 fi
 
+# Start the container: runs server + tests
 docker run --rm bloomtest
 
+# To Run (from EX-2 folder)
+# chmod +x tests/run_all.sh
+# ./tests/run_all.sh

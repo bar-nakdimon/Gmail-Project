@@ -69,6 +69,17 @@ bool BloomFilter::doubleCheck(const std::string& url) const {
     return blacklist.find(url) != blacklist.end();
 }
 
+bool BloomFilter::remove(const std::string& url) {
+    auto it = blacklist.find(url);
+    if (it != blacklist.end()) {
+        blacklist.erase(it);
+        save();  // save updated list to disk
+        return true;
+    }
+    return false;
+}
+
+
 /**
  * @brief Saves the current state of the Bloom filter to disk, including:
  *        - bit array
