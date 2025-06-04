@@ -1,5 +1,6 @@
 #include "Server.h"                // Include the Server class definition
 #include "ConnectionHandler.h"     // For handling individual client connections
+#include "Bloom/BloomFilter.h"
 
 #include <iostream>                // For std::cout and std::cerr
 #include <stdexcept>               // For throwing runtime errors
@@ -7,13 +8,15 @@
 #include <sys/socket.h>            // For socket(), bind(), listen(), accept()
 #include <netinet/in.h>            // For sockaddr_in
 #include <unistd.h>                // For close()
+#include <thread>
+#include <mutex>
 
-#define MAX_CLIENTS 1              // Define the maximum number of clients to handle at once
+#define MAX_CLIENTS 100            // Define the maximum number of clients to handle at once
+static std::mutex bloom_mutex;
 
 // Modified constructor: no IP argument
-Server::Server(int port, const std::string& configLine)
-    : port(port), serverSocket(-1), configLine(configLine) {}
-
+Server::Server(int port, const std::string& configLine, BloomFilter* bloom, ThreadManager* manager)
+    : port(port), serverSocket(-1), configLine(configLine), bloom(bloom), threadManager(manager) {}
 
 // Sets up the server socket, binds it to all available interfaces, and starts listening
 void Server::setupSocket() {
@@ -57,7 +60,7 @@ void Server::setupSocket() {
 // Handles an individual client socket connection
 void Server::handleClient(int clientSocket) {
     // Create a ConnectionHandler object to manage this client's connection
-    ConnectionHandler handler(clientSocket, configLine);
+    ConnectionHandler handler(clientSocket, bloom, &bloom_mutex);
     handler.handle();  // Handle the communication with the client
 }
 
@@ -75,9 +78,11 @@ void Server::run() {
             perror("Error accepting connection");
             continue;  // If accepting failed, continue to accept next connections
         }
+        threadManager->run([this, clientSocket]() {
+            this->handleClient(clientSocket);
+            close(clientSocket);
+        });
 
-        handleClient(clientSocket);  // Handle communication with the client
-        close(clientSocket);  // Close the client socket after handling
     }
 
     close(serverSocket);  // Unreachable unless the loop is broken (graceful shutdown)

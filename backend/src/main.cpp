@@ -1,6 +1,7 @@
 
 #include "Server/Server.h"             // Server class definition
 #include "Bloom/InputValidator.h"      // Input validation utilities
+#include "Bloom/BloomFilter.h"
 #include <string>
 #include <vector>
 #include <algorithm>                  // For std::all_of
@@ -47,7 +48,11 @@ int main(int argc, char* argv[]) {
 
     try {
         // Create and start the server with port and config (IP removed)
-        Server server(port, configLine);
+        BloomFilter* sharedBloom = new BloomFilter(filterSize, hashFuncs, "data/filter_data.txt");
+        ThreadManager threadManager;
+        Server server(port, configLine, sharedBloom, &threadManager);
+
+
         server.run();
     } catch (...) {
         return 1;

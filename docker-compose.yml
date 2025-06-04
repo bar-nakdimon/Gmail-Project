@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  tcpserver:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.tcpserver
+    ports:
+      - "5555:5555"
+    networks:
+      - internal
+
+  apiserver:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - tcpserver
+    networks:
+      - internal
+
+networks:
+  internal:

@@ -9,10 +9,12 @@
 #include <iostream>                    // For debugging/logging (optional)
 #include <memory>                      // For std::unique_ptr
 #include <sys/socket.h>                // For socket communication functions
+#include <thread>
+#include <mutex>
 
 // Constructor initializes the ConnectionHandler with a client socket and configuration string
-ConnectionHandler::ConnectionHandler(int socket, const std::string& configLine)
-    : clientSocket(socket), configLine(configLine) {}
+ConnectionHandler::ConnectionHandler(int socket, BloomFilter* bloom, std::mutex* mutex)
+    : clientSocket(socket), bloom(bloom), bloom_mutex(mutex) {}
 
 // Handles incoming client requests on the connected socket
 void ConnectionHandler::handle() {
@@ -20,8 +22,9 @@ void ConnectionHandler::handle() {
     std::string leftover;                     // Stores any partial or extra input between reads
     size_t size;                              // Bloom filter size
     std::vector<int> config;                  // Hash function depths
-    std::unique_ptr<BloomFilter> bloom;       // Bloom filter instance (managed with smart pointer)
-
+    //std::unique_ptr<BloomFilter> bloom;       // Bloom filter instance (managed with smart pointer)
+    
+    /*
     // Parse the configuration passed to the handler (not from client input)
     if (!parseInitialConfig(configLine, size, config)) {
         std::string response = "400 Bad Request\n";
@@ -31,7 +34,7 @@ void ConnectionHandler::handle() {
     }
 
     // Create BloomFilter with parsed parameters and data file for persistent state
-    bloom = std::make_unique<BloomFilter>(size, config, "data/filter_data.txt");
+    bloom = std::make_unique<BloomFilter>(size, config, "data/filter_data.txt");*/
 
     // Enter main communication loop with the client
     while (true) {
@@ -63,6 +66,7 @@ void ConnectionHandler::handle() {
             if (line.empty()) {
                 std::string response = "400 Bad Request\n";
                 send(clientSocket, response.c_str(), response.size(), 0);
+                shutdown(clientSocket, SHUT_WR);
                 continue;
             }
 
@@ -71,6 +75,7 @@ void ConnectionHandler::handle() {
             if (parsed.type == CommandType::INVALID) {
                 std::string response = "400 Bad Request\n";
                 send(clientSocket, response.c_str(), response.size(), 0);
+                shutdown(clientSocket, SHUT_WR);
                 continue;
             }
 
@@ -79,12 +84,18 @@ void ConnectionHandler::handle() {
             if (!cmd) {
                 std::string response = "400 Bad Request\n";
                 send(clientSocket, response.c_str(), response.size(), 0);
+                shutdown(clientSocket, SHUT_WR);
                 continue;
             }
 
             // Execute the command on the BloomFilter and send the response back to the client
-            std::string response = cmd->execute(*bloom) + "\n";
+            std::string response;
+            {
+                std::lock_guard<std::mutex> lock(*bloom_mutex);
+                response = cmd->execute(*bloom) + "\n";
+            }
             send(clientSocket, response.c_str(), response.size(), 0);
+            shutdown(clientSocket, SHUT_WR);
         }
     }
 

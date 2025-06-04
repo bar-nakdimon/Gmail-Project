@@ -1,3 +1,8 @@
+# node_modules directory
+node_modules/
+
+.vscode/
+
 # Build directory (CMake, Docker, etc.)
 build/
 
@@ -33,3 +38,4 @@ build/
 *.exe
 *.out
 *.app
+

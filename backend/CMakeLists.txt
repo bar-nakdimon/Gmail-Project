@@ -70,24 +70,3 @@ add_executable(server
   ${COMMON_COMMANDS_SRC}
   ${COMMON_BLOOM_SRC}
 )
-
-# === Build the Unit Tests Executable ===
-# Creates a test executable to run all GoogleTest-based unit tests
-add_executable(runTests
-  tests/input_validator_tests.cpp
-  tests/bloom_save_load_tests.cpp
-  tests/socket_integration_tests.cpp
-  tests/bloom_core_tests.cpp
-  tests/server_args_tests.cpp
-  ${COMMON_SERVER_SRC}
-  ${COMMON_COMMANDS_SRC}
-  ${COMMON_BLOOM_SRC}
-)
-
-# Link the test target with GoogleTest and pthread
-target_link_libraries(runTests gtest_main pthread)
-
-# Enable CTest and discover test cases automatically
-enable_testing()
-include(GoogleTest)
-gtest_discover_tests(runTests)

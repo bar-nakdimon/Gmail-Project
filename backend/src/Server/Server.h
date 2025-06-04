@@ -2,6 +2,8 @@
 #define SERVER_H
 
 #include <string>
+#include "Bloom/BloomFilter.h"
+#include "ThreadManager.h"
 
 /**
  * @brief The Server class handles setting up a TCP server socket,
@@ -15,7 +17,7 @@ public:
      * @param port Port number the server will listen on.
      * @param configLine Configuration string passed to clients (e.g., Bloom filter settings).
      */
-    Server(int port, const std::string& configLine);  // 🔄 IP removed
+    Server(int port, const std::string& configLine, BloomFilter* bloom, ThreadManager* manager);
 
     /**
      * @brief Starts the server and enters the main accept loop to handle clients.
@@ -26,6 +28,9 @@ private:
     int port;                  // Port number to listen on
     int serverSocket;          // Server socket file descriptor
     std::string configLine;    // Configuration line to pass to each ConnectionHandler
+    BloomFilter* bloom;
+    ThreadManager* threadManager;
+
 
     /**
      * @brief Initializes and configures the server socket.

@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/
 
 COPY . .
 
-RUN rm -rf build && mkdir build && cd build && cmake .. && make
+RUN rm -rf build && mkdir build && cd build && cmake ../backend && make
 
 FROM gcc:latest AS runtime
 
@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y python3 && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/src/app/build/server ./server
 
-COPY data ./data
+COPY backend/data ./data
 
 RUN chmod +x ./server
 

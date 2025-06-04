@@ -1,0 +1,16 @@
+# Dockerfile.api
+FROM node:18
+
+# Create app directory
+WORKDIR /usr/api
+
+# Copy package info and install dependencies
+COPY api/package*.json ./
+RUN npm install
+
+# Copy the rest of your code
+COPY api/ .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
