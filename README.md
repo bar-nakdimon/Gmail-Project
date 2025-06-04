@@ -13,7 +13,7 @@ The goal of the project is to design and implement a full-stack Gmail-like email
 
 This project implements a RESTful web API server for a mail system with user authentication, mail sending/receiving, label management, and blacklist URL filtering.
 
-The backend TCP server (from EX-2) handles Bloom Filter blacklist checking and runs concurrently to support multiple clients.
+The backend TCP server handles Bloom Filter blacklist checking and runs concurrently to support multiple clients.
 
 The API server is built with Node.js and Express, following MVC architecture with loose coupling and SOLID principles. Data is stored in-memory for simplicity, except blacklist URLs which persist in backend files.
 
