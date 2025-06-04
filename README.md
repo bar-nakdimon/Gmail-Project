@@ -1,7 +1,12 @@
 <div dir="ltr">
 
-# EX-3: Advanced Mail Service API with Blacklist Integration
-https://github.com/razemanoel/EX-3.git
+# Gmail-Project
+
+This project is part of an Advanced Programming course at Bar-Ilan University, developed by a team of three students.
+
+The goal of the project is to design and implement a full-stack Gmail-like email system, focusing on backend architecture, API development, secure authentication, and scalable deployment using modern software engineering principles.
+
+## This Part: Advanced Mail Service API with Blacklist Integration
 ---
 
 ## Project Overview
