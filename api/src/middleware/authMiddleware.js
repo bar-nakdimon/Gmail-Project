@@ -1,15 +1,21 @@
-const { getUserIdFromRequest } = require('../utils/authHelper');
+const { verifyToken } = require('../utils/authHelper'); 
 
-/**
- * Middleware to check and attach authenticated userId to the request object.
- * If userId missing or invalid, responds with 401 Unauthorized.
- */
-async function authenticateUser(req, res, next) {
-  const userId = await getUserIdFromRequest(req);
-  if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized: Missing or invalid user ID' });
+function authenticateUser(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
-  req.userId = userId;  // Attach userId to request for later use
+
+  const token = authHeader.split(' ')[1];
+  const user = verifyToken(token);
+
+  if (!user) {
+    return res.status(403).json({ error: 'Forbidden: Invalid or expired token' });
+  }
+
+  req.user = user;
+  req.userId = user.userId;
   next();
 }
 

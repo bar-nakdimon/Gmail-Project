@@ -1,4 +1,5 @@
 const userService = require('../services/UserService');
+const { createToken } = require('../utils/authHelper');
 
 class TokenController {
   /**
@@ -17,9 +18,10 @@ class TokenController {
     if (!user) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
+    // Generate JWT token instead of just userId
+    const token = createToken(user);
 
-    // Simplified: returning user ID as token substitute
-    res.status(200).json({ userId: user.id });
+    res.status(200).json({ token });
   }
 }
 

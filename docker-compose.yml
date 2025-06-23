@@ -21,5 +21,16 @@ services:
     networks:
       - internal
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.react
+    ports:
+      - "3001:3001"    
+    depends_on:
+      - apiserver
+    networks:
+      - internal
+
 networks:
   internal:

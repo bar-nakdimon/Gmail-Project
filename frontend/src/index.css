@@ -1,0 +1,70 @@
+/* Default light mode styles */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #111111;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Dark mode overrides */
+.dark-mode {
+  background-color: #121212;
+  color: #eeeeee;
+}
+
+.dark-mode .header {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
+  color: #ffffff;
+}
+
+.dark-mode .sidebar {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border-right: 1px solid #333;
+}
+
+.dark-mode .main-area {
+  background-color: #181818;
+  color: #e0e0e0;
+}
+
+.dark-mode .profile-view {
+  background-color: #202020;
+  color: #ffffff;
+}
+
+.dark-mode .user-dropdown {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #444;
+}
+
+.dark-mode .user-dropdown .logout-button:hover {
+  background-color: #3a3a3a;
+}
+
+.dark-mode .compose-button {
+  background-color: #c62828;
+}
+
+.dark-mode .compose-button:hover {
+  background-color: #ad1f1f;
+}
+

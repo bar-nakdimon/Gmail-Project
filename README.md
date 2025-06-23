@@ -1,323 +1,113 @@
-<div dir="ltr">
-
-# Gmail-Project
+# Full-Stack Gmail Project
 ---
 
 This project is part of an Advanced Programming course at Bar-Ilan University, developed by a team of three students.
 
-The goal of the project is to design and implement a full-stack Gmail-like email system, focusing on backend architecture, API development, secure authentication, and scalable deployment using modern software engineering principles.
-
-## This Part: Advanced Mail Service API with Blacklist Integration
+## This Part: Full-Stack Gmail Web Application
 
 ## Project Overview
+This project builds upon the previous backend and API work by integrating a full React-based frontend, resulting in a complete Gmail-style mail system. It combines three key components:
 
-This project implements a RESTful web API server for a mail system with user authentication, mail sending/receiving, label management, and blacklist URL filtering.
+- A C++ backend TCP server (from EX-2) that manages a Bloom Filter-based blacklist.
+- A Node.js API server (from EX-3) that handles all business logic and persists data in memory or files.
+- A React web interface that allows users to interact with the system via a browser instead of curl or Postman.
 
-The backend TCP server handles Bloom Filter blacklist checking and runs concurrently to support multiple clients.
-
-The API server is built with Node.js and Express, following MVC architecture with loose coupling and SOLID principles. Data is stored in-memory for simplicity, except blacklist URLs which persist in backend files.
+This part (EX-4) replaces the previous curl-based manual tests from EX-2 and EX-3. All API interaction is now done via the React interface.
 
 ---
 
 ## Architecture Overview
 
-- **TCP Backend Server** (C++): Bloom Filter based blacklist service, listening on port 5555.  
-- **Node.js API Server**: Exposes RESTful endpoints for user management, mails, labels, and blacklist. Communicates with TCP server via sockets.  
-- **Middleware**: Authentication middleware injects authenticated `userId` for protected routes.  
-- **In-Memory Storage**: Users, mails, and labels are stored in memory.  
-- **Blacklist Persistence**: Malicious URLs added to blacklist are persisted in `backend/data` as text files.
+- **TCP Backend Server (C++)**  
+  Handles Bloom Filter blacklist logic and persists blacklisted URLs to file. Runs concurrently to support multiple API connections over TCP sockets.
+
+- **Node.js API Server**  
+  Implements RESTful API routes for user registration/login, mail management, label handling, and spam detection. Follows MVC architecture with SOLID principles and in-memory data storage.
+
+- **React Frontend**  
+  Users can register, login, view inbox/sent mails, compose messages, manage labels, and edit drafts through a user-friendly interface. The frontend interacts only with the API server.
+
+---
+
+## Features
+
+### Authentication
+- User registration and login via the React app.
+- JWT-based session handling.
+- Users upload a profile picture during registration.
+
+### Mail System
+- Compose and send new mail to other users.
+- Save drafts and later update/send them.
+- View inbox, sent items, and full mail content.
+- Delete mails (soft-delete using the “Trash” label).
+- Search mails by keyword.
+
+### Label Management
+- Create new labels.
+- Apply/remove multiple labels per mail.
+- Edit/delete custom labels.
+- System labels include: Inbox, Sent, Read, Unread, Drafts, Spam, Trash, Star.
+
+### Spam & Blacklist Integration
+- If a mail contains a URL from the blacklist, it’s marked as spam for the recipient.
+- Marking a mail as spam will add its URLs to the blacklist (via TCP).
+- Removing the spam label will remove the associated URLs from the blacklist.
+- Blacklist communication is done via TCP to the C++ server using Bloom Filter.
+
+---
+
+## File Structure
+
+```
+EX-4/
+│
+├── backend/                 # C++ TCP server (Bloom Filter blacklist)
+│   ├── src/
+│   ├── Dockerfile.tcpserver
+│   └── CMakeLists.txt
+│
+├── api/                     # Node.js + Express API server
+│   ├── src/
+│   ├── Dockerfile.api
+│   ├── server.js
+│   └── ...
+│
+├── frontend/                # React application
+│   ├── src/
+│   ├── Dockerfile.react
+│   └── ...
+│
+└── docker-compose.yml       # Orchestrates all services
+```
 
 ---
 
 ## Running the Project
 
-1. **Start the TCP backend server and the API server together using Docker Compose:**  
-   ```bash
-   docker compose up --build
+Run in the terminal:
 
-This command builds and starts both servers:
-- TCP server listens on port 5555
-- API server listens on port 3000
+```bash
+docker compose up --build
+```
 
-## Manual Testing Instructions
+This will:
+- Build and start the C++ TCP server (port 5555)
+- Build and start the Node.js API server (port 3000)
+- Build and start the React frontend (port 3001)
 
-Open a second terminal window to run the following example curl commands to interact with the API.
+Access the application at: [http://localhost:3001](http://localhost:3001)
 
 ---
 
-
-# Example curl commands and expected responses
-
-
-## 1. Register a new user
-
-```bash
-curl -i -X POST http://localhost:3000/api/users \
--H "Content-Type: application/json" \
--d '{"username":"user1","password":"pass1234","name":"User One","avatarUrl":"https://example.com/avatar1.png"}'
-```
-**Expected response:**
-```
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-
-{
-  "id": 1,
-  "username": "user1",
-  "name": "User One",
-  "avatarUrl": "https://example.com/avatar1.png"
-}
-```
-
-## 2. Login user
-
-```bash
-curl -i -X POST http://localhost:3000/api/tokens \
--H "Content-Type: application/json" \
--d '{"username":"user1","password":"pass1234"}'
-```
-**Expected response:**
-```
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{"userId":1}
-```
-
-## 3. Create a new mail (must include x-user-id header)
-**Register a new user (receiver):**
-
-```bash
-curl -i -X POST http://localhost:3000/api/users \
--H "Content-Type: application/json" \
--d '{"username":"user2","password":"pass1234","name":"User Two","avatarUrl":"https://example.com/avatar1.png"}'
-```
-**Expected response:**
-```
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-
-{
-  "id": 2,
-  "username": "user2",
-  "name": "User Two",
-  "avatarUrl": "https://example.com/avatar1.png"
-}
-```
-
-**Create a new mail from 'user1' to 'user2':**
-```bash
-curl -i -X POST http://localhost:3000/api/mails \
--H "Content-Type: application/json" \
--H "x-user-id: 1" \
--d '{"toUserId":"2","subject":"Hello","body":"This is a safe mail."}'
-```
-**Expected response:**
-```
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-
-{
-  "id": 1,
-  "fromUserId": 1,
-  "toUserId": 2,
-  "subject": "Hello",
-  "body": "This is a safe mail.",
-  "timestamp": "2025-05-30T12:15:00.000Z"
-}
-```
-
-## 4. Create mail with blacklisted URL (should fail)
-
-**Add URL to blacklist:**
-```bash
-curl -i -X POST http://localhost:3000/api/blacklist \
--H "Content-Type: application/json" \
--H "x-user-id: 1" \
--d '{"url": "http://malicious-site.com"}'
-```
-**Expected response:**
-```
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-{
-  "message": "url 'http://malicious-site.com' added to blacklist.",
-  "id": 1
-}
-```
-
-**Create a new mail with the URL:**
-```bash
-curl -i -X POST http://localhost:3000/api/mails \
--H "Content-Type: application/json" \
--H "x-user-id: 1" \
--d '{"toUserId":"2","subject":"Malicious","body":"Visit http://malicious-site.com"}'
-```
-**Expected response:**
-```
-HTTP/1.1 400 Bad Request
-Content-Type: application/json; charset=utf-8
-
-{"error":"Blacklisted URL detected"}
-```
-
-## 5. Get inbox mails (last 50 mails)
-
-```bash
-curl -i -H "x-user-id: 1" http://localhost:3000/api/mails
-```
-**Expected response:**
-```
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-[
-  {
-    "id": 1,
-    "fromUserId": 1,
-    "toUserId": 2,
-    "subject": "Hello",
-    "body": "This is a safe mail.",
-    "timestamp": "2025-05-30T12:00:00.000Z"
-  }
-]
-```
-
-## 6. Get mail by ID
-```bash
-curl -i -H "x-user-id: 1" http://localhost:3000/api/mails/1
-```
-**Expected response:**
-```
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "id": 1,
-  "fromUserId": 1,
-  "toUserId": 2,
-  "subject": "Hello",
-  "body": "This is a safe mail.",
-  "timestamp": "2025-05-30T12:00:00.000Z"
-}
-```
-
-## 7. Update mail (PATCH)
-```bash
-curl -i -X PATCH http://localhost:3000/api/mails/1 \
--H "Content-Type: application/json" \
--H "x-user-id: 1" \
--d '{"subject":"Updated subject"}'
-```
-**Expected response:**
-```
-HTTP/1.1 204 No Content
-```
-
-## 8. Search mails by query
-```bash
-curl -i -H "x-user-id: 1" http://localhost:3000/api/mails/search/Updated
-```
-**Expected response:**
-```
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-[
-  {
-  "id": 1,
-  "fromUserId": 1,
-  "toUserId": 2,
-  "subject": "Updated subject",
-  "body": "This is a safe mail.",
-  "timestamp": "2025-05-30T12:00:00.000Z"
-  }
-]
-
-```
-## 9. Delete mail (DELETE)
-```bash
-curl -i -X DELETE http://localhost:3000/api/mails/1 \
--H "x-user-id: 1"
-```
-**Expected response:**
-```
-HTTP/1.1 204 No Content
-```
-
-## 10. Create a new label
-```bash
-curl -i -X POST http://localhost:3000/api/labels \
--H "Content-Type: application/json" \
--H "x-user-id: 1" \
--d '{"name":"Urgent","description":"Urgent mails"}'
-
-```
-**Expected response:**
-```
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-
-{"id":1,"name":"Urgent","description":"Urgent mails"}
-```
-
-## 11. Get all labels for user
-```bash
-curl -i -H "x-user-id: 1" http://localhost:3000/api/labels
-```
-**Expected response:**
-```
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-[
- {"id":1,"name":"Urgent","description":"Urgent mails"}
-]
-```
-
-## 12. Get label by ID
-```bash
-curl -i -H "x-user-id: 1" http://localhost:3000/api/labels/1
-```
-**Expected response:**
-```
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{"id":1,"name":"Urgent","description":"Urgent mails"}
-
-```
-
-## 13. Update label (PATCH)
-```bash
-curl -i -X PATCH http://localhost:3000/api/labels/1 \
--H "Content-Type: application/json" \
--H "x-user-id: 1" \
--d '{"description":"Updated description"}'
-```
-**Expected response:**
-```
-HTTP/1.1 204 No Content
-
-```
-## 14. Delete label (DELETE)
-```bash
-curl -i -X DELETE http://localhost:3000/api/labels/1 \
--H "x-user-id: 1"
-
-```
-**Expected response:**
-```
-HTTP/1.1 204 No Content
-```
-
-## 15. Delete URL from blacklist 
-```bash
-curl -i -X DELETE http://localhost:3000/api/blacklist/1 \
--H "x-user-id: 1"
-
-```
-**Expected response:**
-```
-HTTP/1.1 204 No Content
-```
+## Screenshots
+### Register
+![Register](https://github.com/user-attachments/assets/fe7bf564-53cd-4826-903b-027ae8cd16d9)
+### Login
+![Login](https://github.com/user-attachments/assets/f0b99fd5-8e60-4e79-8a45-207b914e8a73)
+### Inbox Page
+![InboxPage](https://github.com/user-attachments/assets/bb7d8728-8d0e-439b-9254-3bed44f3911d)
+### View Mail
+![ViewMail](https://github.com/user-attachments/assets/30d5bfd9-6225-4ba5-abcf-319181b16bfb)
+### Compose Mail
+![ComposeMail](https://github.com/user-attachments/assets/25347366-dadc-4f8b-9b4e-d7b29752748b)

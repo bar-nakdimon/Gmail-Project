@@ -1,9 +1,15 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+
+app.use(cors()); //// Use middleware for handling CORS requests
 
 app.use(express.json());  // Middleware to parse JSON request bodies automatically
 
 // Import mail routes
+
+// Serve uploaded files (e.g., user avatars)
+app.use('/uploads', express.static('uploads'));
 const mailRoutes = require('./src/routes/mailRoutes');
 // Import label routes
 const labelRoutes = require('./src/routes/labelRoutes');

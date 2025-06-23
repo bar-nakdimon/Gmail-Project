@@ -1,5 +1,17 @@
 const Label = require('../models/Label');
 
+const DEFAULT_LABELS = [
+  { id: 'sent', name: 'Sent', description: 'Mails you sent' },
+  { id: 'received', name: 'Received', description: 'Mails you received' },
+  { id: 'star', name: 'Star', description: 'Starred mails' },
+  { id: 'trash', name: 'Trash', description: 'Deleted mails' },
+  { id: 'spam', name: 'Spam', description: 'Marked as spam' },
+  { id: 'read', name: 'Read', description: 'Marked as read' },
+  { id: 'unread', name: 'Unread', description: 'Marked as unread' },
+  { id: 'drafts', name: 'Drafts', description: 'Marked you drafted' }
+
+];
+
 class LabelService {
   constructor() {
     /**
@@ -8,97 +20,59 @@ class LabelService {
      * Value: Array of Label objects belonging to that user.
      */
     this.userLabels = new Map();
-
-    /**
-     * Global incremental ID to assign unique IDs to new labels,
-     * across all users. In real DB this would be auto-generated.
-     */
-    this.nextId = 1;
   }
 
-  /**
-   * Internal helper to retrieve the array of labels for a specific user.
-   * If none exists, initializes an empty array.
-   * 
-   * @param {string} userId - The user ID.
-   * @returns {Array} - Array of Label objects for the user.
-   */
-  _getLabelsForUser(userId) {
+  // Init default labels for a user only once
+  initDefaultLabels(userId) {
     if (!this.userLabels.has(userId)) {
-      this.userLabels.set(userId, []);
+      this.userLabels.set(userId, [...DEFAULT_LABELS]);
     }
+  }
+
+  getAllLabels(userId) {
+    this.initDefaultLabels(userId);
     return this.userLabels.get(userId);
   }
 
-  /**
-   * Get all labels for a user.
-   * 
-   * @param {string} userId - The user ID.
-   * @returns {Array} - Array of all labels for the user.
-   */
-  getAllLabels(userId) {
-    return this._getLabelsForUser(userId);
-  }
-
-  /**
-   * Create a new label for a user.
-   * 
-   * @param {string} userId - The user ID.
-   * @param {Object} data - Label data (name, description).
-   * @returns {Label} - The newly created Label object.
-   */
-  createLabel(userId, data) {
-    const labels = this._getLabelsForUser(userId);
-    const label = new Label({ id: this.nextId++, userId: userId, ...data });
-    labels.push(label);
-    return label;
-  }
-
-  /**
-   * Find a label by ID for a specific user.
-   * 
-   * @param {string} userId - The user ID.
-   * @param {number} id - Label ID.
-   * @returns {Label|null} - The label if found, else null.
-   */
   getLabelById(userId, id) {
-    const labels = this._getLabelsForUser(userId);
-    return labels.find(label => label.id === id) || null;
+    return this.getAllLabels(userId).find(label => label.id === id) || null;
   }
 
-  /**
-   * Update a label partially for a user.
-   * 
-   * @param {string} userId - The user ID.
-   * @param {number} id - Label ID.
-   * @param {Object} updateFields - Fields to update (name, description).
-   * @returns {Label|null} - Updated label or null if not found.
-   */
-  updateLabel(userId, id, updateFields) {
-    const label = this.getLabelById(userId, id);
-    if (!label) return null;
+  createLabel(userId, name, description) {
+    this.initDefaultLabels(userId);
+    const id = name.toLowerCase().replace(/\s+/g, '-');
+    const all = this.userLabels.get(userId);
+    if (all.some(l => l.id === id)) return null; // no duplicates
 
-    if (updateFields.name !== undefined) label.name = updateFields.name;
-    if (updateFields.description !== undefined) label.description = updateFields.description;
-
+    const label = { id, name, description };
+    all.push(label);
     return label;
   }
 
-  /**
-   * Delete a label by ID for a user.
-   * 
-   * @param {string} userId - The user ID.
-   * @param {number} id - Label ID.
-   * @returns {boolean} - True if deletion succeeded, false if not found.
-   */
   deleteLabel(userId, id) {
-    const labels = this._getLabelsForUser(userId);
-    const idx = labels.findIndex(label => label.id === id);
-    if (idx === -1) return false;
-
-    labels.splice(idx, 1);
+    if (DEFAULT_LABELS.find(l => l.id === id)) return false; // permanent label
+    const all = this.getAllLabels(userId);
+    const index = all.findIndex(l => l.id === id);
+    if (index === -1) return false;
+    all.splice(index, 1);
     return true;
   }
+  
+  updateLabel(userId, id, newName) {
+  if (DEFAULT_LABELS.find(l => l.id === id)) return false; // cannot rename default labels
+
+  const all = this.getAllLabels(userId);
+  const label = all.find(l => l.id === id);
+  if (!label) return false;
+
+  // Check if another label with the same name already exists
+  const duplicate = all.find(l => l.name.toLowerCase() === newName.toLowerCase() && l.id !== id);
+  if (duplicate) return 'duplicate'; // special flag
+
+  label.name = newName;
+  return true;
+}
+
 }
 
 module.exports = new LabelService();

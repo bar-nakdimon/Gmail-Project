@@ -1,0 +1,65 @@
+.mail-detail {
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  color: #111;
+}
+
+.dark-mode .mail-detail {
+  background: #1e1e1e;
+  color: #eee;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.mail-subject-header {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.mail-meta > div {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.mail-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mail-label-chip {
+  background-color: #e0e0e0;
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  color: #111;
+}
+
+.dark-mode .mail-label-chip {
+  background-color: #2a2a2a;
+  color: #eee;
+}
+
+.mail-label-remove {
+  background: none;
+  border: none;
+  color: #b71c1c;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.mail-body {
+  margin-top: 24px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.dark-mode .mail-body {
+  color: #ddd;
+}

@@ -1,0 +1,119 @@
+/* Container uses flexbox for side-by-side layout */
+.container {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #f5f7fa;
+}
+
+/* Left side panel: white background, centered content */
+.left-panel {
+  flex: 1;
+  background-color: white;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid #e5e5e5;
+  box-sizing: border-box;
+}
+
+.logo {
+  width: 80px;
+  margin-bottom: 32px;
+}
+
+.left-panel h1 {
+  font-weight: 400;
+  font-size: 36px;
+  margin: 0 0 8px 0;
+}
+
+.left-panel p {
+  font-size: 18px;
+  color: #5f6368;
+}
+
+/* Right side panel: form container */
+.right-panel {
+  flex: 1;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+/* Form styles */
+form {
+  max-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-label {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #202124;
+  font-weight: 600;
+}
+
+.input-field {
+  padding: 12px 10px;
+  font-size: 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  border-color: #1a73e8;
+  outline: none;
+  box-shadow: 0 0 3px 1px #c8dafc;
+}
+
+/* Links */
+.forgot-link, .guest-link, .create-link {
+  color: #1a73e8;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-link:hover, .guest-link:hover, .create-link:hover {
+  text-decoration: underline;
+}
+
+.next-button {
+  margin-top: 16px;
+  background-color: #1a73e8;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.next-button:hover {
+  background-color: #1558b0;
+}
+
+/* Footer text */
+.footer-text {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #5f6368;
+  line-height: 1.4;
+}
+
+/* Create account container */
+.create-account {
+  margin-top: 40px;
+  font-size: 14px;
+  text-align: center;
+}

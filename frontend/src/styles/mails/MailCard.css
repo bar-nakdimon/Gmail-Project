@@ -1,0 +1,115 @@
+.mail-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mail-card.unread {
+  background-color: #fefefe;
+  font-weight: 600;
+}
+
+.mail-card.read {
+  background-color: #f1f3f4;
+  color: #5f6368;
+}
+
+.dark-mode .mail-card.unread {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+}
+
+.dark-mode .mail-card.read {
+  background-color: #2a2a2a;
+  color: #aaaaaa;
+}
+
+.mail-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.mail-direction-icon {
+  color: #5f6368;
+}
+
+.dark-mode .mail-direction-icon {
+  color: #bbbbbb;
+}
+
+.mail-star {
+  color: #b0b0b0;
+  cursor: pointer;
+}
+
+.dark-mode .mail-star {
+  color: #999;
+}
+
+.mail-star.starred {
+  color: #fbbc04;
+}
+
+.mail-read-toggle {
+  color: #5f6368;
+  cursor: pointer;
+}
+
+.dark-mode .mail-read-toggle {
+  color: #cccccc;
+}
+
+.mail-delete {
+  color: #c62828;
+  cursor: pointer;
+}
+
+.mail-restore {
+  color: #1e88e5;
+  cursor: pointer;
+}
+
+.mail-sender {
+  flex: 1;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mail-subject {
+  flex: 2;
+  padding: 0 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mail-time {
+  flex-shrink: 0;
+  color: #888;
+  font-size: 0.875rem;
+}
+
+.dark-mode .mail-time {
+  color: #aaa;
+}
+
+.mail-draft-label {
+  color: #d32f2f;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+.dark-mode .mail-draft-label {
+  color: #ef5350;
+}
