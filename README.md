@@ -83,7 +83,7 @@ Gmail-Project/
 Open terminal and run:
 
 ```bash
-git clone https://github.com/razemanoel/EX-5.git
+git clone https://github.com/bar-nakdimon/Gmail-Project.git
 ```
 
 ### 2. Create Environment Configuration
