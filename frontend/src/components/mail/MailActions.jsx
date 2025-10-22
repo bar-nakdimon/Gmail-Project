@@ -10,7 +10,7 @@ import {
   MdReport,
   MdRestoreFromTrash,
   MdLabel
-} from 'react-icons/md';
+} from '../../icons/Icons';
 import '../../styles.css';
 import '../../styles/mails/MailActions.css';
 import {
@@ -34,7 +34,7 @@ export default function MailActions({ mail, onMailDeleted, onMailUpdated }) {
   const isOwnedByUser = mail.fromUserId === user?.id;
 
   useEffect(() => {
-    if (showLabelPicker && allLabels.length === 0) {
+    if (showLabelPicker) {
       getLabels(token, logout).then(setAllLabels).catch(console.error);
     }
   }, [showLabelPicker, token, logout]);
@@ -117,6 +117,7 @@ export default function MailActions({ mail, onMailDeleted, onMailUpdated }) {
             await toggleRead(mail, token, logout, async (updated) => {
               if (onMailUpdated) await onMailUpdated(updated);
               alert('Marked as unread');
+              navigate(-1);
             });
           }}
         >

@@ -1,4 +1,4 @@
-const { verifyToken } = require('../utils/authHelper'); 
+const { verifyToken } = require('../utils/authHelper');
 
 function authenticateUser(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -8,14 +8,14 @@ function authenticateUser(req, res, next) {
   }
 
   const token = authHeader.split(' ')[1];
-  const user = verifyToken(token);
+  const decoded = verifyToken(token);
 
-  if (!user) {
+  if (!decoded || typeof decoded.userId !== 'number') {
     return res.status(403).json({ error: 'Forbidden: Invalid or expired token' });
   }
 
-  req.user = user;
-  req.userId = user.userId;
+  req.user = decoded;
+  req.userId = decoded.userId;
   next();
 }
 

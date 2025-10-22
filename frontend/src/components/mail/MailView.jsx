@@ -5,8 +5,8 @@ import { AuthContext } from '../../contexts/AuthContext';
 import MailDetail from './MailDetail';
 import MailActions from './MailActions';
 import '../../styles.css';
-import { FiArrowLeft } from 'react-icons/fi';
-import '../../styles/mails/MailView.css'
+import { FiArrowLeft } from '../../icons/Icons';
+import '../../styles/mails/MailView.css';
 
 export default function MailViewPage() {
   const { id } = useParams();

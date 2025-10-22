@@ -6,7 +6,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import {
   FiEdit2, FiTrash2, FiInbox, FiStar, FiSend,
   FiFileText, FiAlertCircle, FiTag, FiMail
-} from 'react-icons/fi';
+}  from '../../icons/Icons';
 import '../../styles.css';
 
 export default function LabelItem({ label, onUpdated }) {

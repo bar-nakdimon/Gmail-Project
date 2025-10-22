@@ -5,11 +5,11 @@ import {
   MdArrowBack,
   MdStarBorder,
   MdStar,
-  MdMailOutline,
+  MdMarkEmailUnRead,
   MdMarkEmailRead,
   MdDelete,
   MdRestoreFromTrash
-} from 'react-icons/md';
+} from '../../icons/Icons';
 import { AuthContext } from '../../contexts/AuthContext';
 import {
   toggleStar,
@@ -73,21 +73,6 @@ export default function MailCard({ mail, onClick, onMailDeleted, onMailUpdated }
     await restoreFromTrash(mail, user, token, logout, onMailUpdated, onMailDeleted);
   };
 
-  const starIcon = !isTrash && (
-    starred
-      ? <MdStar size={20} className="mail-star starred" title="Unstar" onClick={handleStarToggle} />
-      : <MdStarBorder size={20} className="mail-star" title="Star" onClick={handleStarToggle} />
-  );
-
-  const readToggleIcon = read
-    ? <MdMarkEmailRead size={20} className="mail-read-toggle" title="Mark as unread" onClick={handleReadToggle} />
-    : <MdMailOutline size={20} className="mail-read-toggle" title="Mark as read" onClick={handleReadToggle} />;
-
-  const deleteIcon = <MdDelete size={20} className="mail-delete" title="Delete mail" onClick={handleDelete} />;
-  const restoreIcon = isTrash && (
-    <MdRestoreFromTrash size={20} className="mail-restore" title="Restore from Trash" onClick={handleRestore} />
-  );
-
   const handleClick = async () => {
     if (!read) {
       await toggleRead(mail, token, logout, (updated) => {
@@ -101,25 +86,60 @@ export default function MailCard({ mail, onClick, onMailDeleted, onMailUpdated }
   };
 
   return (
-    <div
-      className={`mail-card ${read ? 'read' : 'unread'}`}
-      onClick={handleClick}
-    >
-      <div className="mail-icons">
-        {directionIcon}
-        {starIcon}
-        {readToggleIcon}
-        {restoreIcon}
-        {deleteIcon}
+ <div
+  className={`mail-card ${read ? 'read' : 'unread'}`}
+  onClick={handleClick}
+  style={{ position: 'relative', overflow: 'visible' }} 
+>
+  <div className="mail-icons" onClick={(e) => e.stopPropagation()}>
+    {directionIcon}
+
+    {!isTrash && (
+      <>
+        <div className="tooltip-container">
+          <button className="icon-button" onClick={handleStarToggle}>
+            {starred ? <MdStar className="mail-star starred" /> : <MdStarBorder className="mail-star" />}
+          </button>
+          <span className="tooltip">{starred ? 'Unstar' : 'Star'}</span>
+        </div>
+
+        <div className="tooltip-container">
+          <button className="icon-button" onClick={handleReadToggle}>
+            {read
+              ? <MdMarkEmailUnRead className="mail-read-toggle" />
+              : <MdMarkEmailRead className="mail-read-toggle" />
+            }
+          </button>
+          <span className="tooltip">{read ? 'Mark as unread' : 'Mark as read'}</span>
+        </div>
+      </>
+    )}
+
+    {isTrash && (
+      <div className="tooltip-container">
+        <button className="icon-button" onClick={handleRestore}>
+          <MdRestoreFromTrash className="mail-restore" />
+        </button>
+        <span className="tooltip">Restore from Trash</span>
       </div>
-      <div className="mail-sender">{senderOrRecipient}</div>
-      <div className="mail-subject">{mail.subject}</div>
-      <div className="mail-time">
-        {new Date(mail.timestamp).toLocaleString()}
-        {mail.labels?.some(label => label.name?.toLowerCase() === 'drafts') && (
-          <span className="mail-draft-label">Draft</span>
-        )}
-      </div>
+    )}
+
+    <div className="tooltip-container">
+      <button className="icon-button" onClick={handleDelete}>
+        <MdDelete className="mail-delete" />
+      </button>
+      <span className="tooltip">Delete mail</span>
     </div>
-  );
+  </div>
+
+  <div className="mail-sender">{senderOrRecipient}</div>
+  <div className="mail-subject">{mail.subject}</div>
+  <div className="mail-time">
+    {new Date(mail.timestamp).toLocaleString()}
+    {mail.labels?.some(label => label.name?.toLowerCase() === 'drafts') && (
+      <span className="mail-draft-label">Draft</span>
+    )}
+  </div>
+</div>
+)
 }

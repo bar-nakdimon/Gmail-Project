@@ -48,7 +48,7 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           {error && <div className="error-message">{error}</div>}
 
-          <label htmlFor="username" className="input-label">Username</label>
+          <label htmlFor="username" className="input-label">Email</label>
           <input
             type="text"
             id="username"

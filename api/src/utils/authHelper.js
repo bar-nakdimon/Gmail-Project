@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'your_secret_key_here'; // Secret key used to sign and verify the JWT tokens
+const SECRET_KEY = process.env.JWT_SECRET || 'fallback_secret';
 
 /**
  * Creates a JWT token for a given user.
@@ -24,6 +24,7 @@ function verifyToken(token) {
   try {
     return jwt.verify(token, SECRET_KEY);
   } catch (err) {
+    console.warn('JWT verification failed:', err.message);
     return null;
   }
 }

@@ -21,11 +21,17 @@ export default function MailDetail({ mail, userId, onMailDeleted, onMailUpdated 
           <div className="mail-labels">
             <strong>Labels:</strong>
             {(mail.labels || []).length > 0 ? (
-              mail.labels.map(label => (
-                <span key={label.id || label} className="mail-label-chip">
-                  {typeof label === 'object' ? label.name : label}
-                </span>
-              ))
+              mail.labels.map(label => {
+                const labelName = typeof label === 'object' ? label.name?.toLowerCase() : String(label).toLowerCase();
+                const labelClass = `label-${labelName}`;
+                const displayName = typeof label === 'object' ? label.name : label;
+
+                return (
+                  <span key={label.id || label} className={`mail-label-chip ${labelClass}`}>
+                    {displayName}
+                  </span>
+                );
+              })
             ) : (
               <span> None </span>
             )}
@@ -34,7 +40,6 @@ export default function MailDetail({ mail, userId, onMailDeleted, onMailUpdated 
       </div>
 
       <div className="mail-body">{mail.body}</div>
-
     </div>
   );
 }

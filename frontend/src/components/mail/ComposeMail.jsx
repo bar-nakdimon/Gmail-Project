@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { createMail, updateMail } from '../../services/mailService';
+import { createMail, updateMail, deleteMail } from '../../services/mailService';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../../styles.css';
@@ -33,19 +33,14 @@ const ComposeMail = ({ onSent, initialData }) => {
 
     try {
       if (initialData?.id) {
-        await updateMail(token, initialData.id, {
-          toUsername: form.toUsername,
-          subject: form.subject,
-          body: form.body,
-          isDraft: false
-        }, logout);
-      } else {
-        await createMail(token, {
-          toUsername: form.toUsername,
-          subject: form.subject,
-          body: form.body
-        }, logout, navigate);
+        await deleteMail(token, initialData.id, logout);
       }
+
+      await createMail(token, {
+        toUsername: form.toUsername,
+        subject: form.subject,
+        body: form.body
+      }, logout, navigate);
 
       alert('Mail sent!');
       if (onSent) onSent();
@@ -55,6 +50,7 @@ const ComposeMail = ({ onSent, initialData }) => {
       alert('Failed to send mail: ' + (err.message || 'Unknown error'));
     }
   };
+
 
   const handleSaveDraft = async () => {
     if (!form.toUsername && !form.subject && !form.body) {
@@ -98,7 +94,7 @@ const ComposeMail = ({ onSent, initialData }) => {
         <h2>Compose Mail</h2>
 
         <div>
-          <label>To Username:</label>
+          <label>To :</label>
           <input
             type="text"
             name="toUsername"

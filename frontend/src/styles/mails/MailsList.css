@@ -1,4 +1,4 @@
-.mail-list-container {
+.mail-list-wrapper {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -76,3 +76,16 @@
   font-size: 0.875rem;
 }
 
+/* Search / status messages */
+.mails-loading,Add commentMore actions
+.mails-error,
+.no-mails {
+  text-align: center;
+  padding: 20px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.dark-mode .mails-error {
+  color: #ff6f61;
+}

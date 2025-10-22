@@ -35,9 +35,9 @@ export default function SearchResults() {
     setResults(prev => prev.map(m => (m.id === updated.id ? updated : m)));
   };
 
-  if (loading) return <div>Searching for "{query}"...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (results.length === 0) return <div>No results found for "{query}".</div>;
+ if (loading) return <div className="mails-loading">Searching for "{query}"...</div>;
+  if (error) return <div className="mails-error">{error}</div>;
+  if (results.length === 0) return <p className="no-mails">No results found for "{query}".</p>;
 
   return (
     <div className="mails-list-wrapper">

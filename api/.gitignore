@@ -1,1 +1,7 @@
 /node_modules
+node_modules
+dist
+build
+
+api/uploads/*
+!api/uploads/default-avatar.svg

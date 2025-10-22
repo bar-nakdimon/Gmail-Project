@@ -1,0 +1,37 @@
+# ========== Android-specific ==========
+*.iml
+.gradle/
+local.properties
+**/build/
+**/captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore files - never upload private keys
+*.jks
+*.keystore
+
+# ========== Android Studio / IntelliJ ==========
+.idea/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.shelf/
+workspace.xml
+
+# ========== macOS ==========
+.DS_Store
+
+# ========== VSCode (optional) ==========
+.vscode/
+
+# ========== Node.js (for website part) ==========
+node_modules/
+dist/
+.env
+
+# ========== Logs ==========
+*.log

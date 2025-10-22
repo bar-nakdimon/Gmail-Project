@@ -11,7 +11,6 @@ import { AuthContext } from '../contexts/AuthContext';
 export default function PrivateRoute({ children }) {
   const { token, loading } = useContext(AuthContext);
 
-  console.log('PrivateRoute - token:', token, 'loading:', loading);
 
   if (loading) {
     // While loading token/auth state, show loading indicator

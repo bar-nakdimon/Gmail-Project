@@ -9,70 +9,74 @@ const DEFAULT_LABELS = [
   { id: 'read', name: 'Read', description: 'Marked as read' },
   { id: 'unread', name: 'Unread', description: 'Marked as unread' },
   { id: 'drafts', name: 'Drafts', description: 'Marked you drafted' }
-
 ];
 
 class LabelService {
-  constructor() {
-    /**
-     * A Map storing user labels by userId.
-     * Key: userId (string)
-     * Value: Array of Label objects belonging to that user.
-     */
-    this.userLabels = new Map();
+async initDefaultLabels(userId) {
+  const existingLabels = await Label.find({ userId }, { id: 1 });
+  const existingIds = new Set(existingLabels.map(l => l.id));
+
+ const toInsert = DEFAULT_LABELS
+  .filter(l => !existingIds.has(l.id))
+  .map((l, index) => ({
+    ...l,
+    userId,
+    order: index 
+  }));
+
+
+  if (toInsert.length > 0) {
+    await Label.insertMany(toInsert);
   }
-
-  // Init default labels for a user only once
-  initDefaultLabels(userId) {
-    if (!this.userLabels.has(userId)) {
-      this.userLabels.set(userId, [...DEFAULT_LABELS]);
-    }
-  }
-
-  getAllLabels(userId) {
-    this.initDefaultLabels(userId);
-    return this.userLabels.get(userId);
-  }
-
-  getLabelById(userId, id) {
-    return this.getAllLabels(userId).find(label => label.id === id) || null;
-  }
-
-  createLabel(userId, name, description) {
-    this.initDefaultLabels(userId);
-    const id = name.toLowerCase().replace(/\s+/g, '-');
-    const all = this.userLabels.get(userId);
-    if (all.some(l => l.id === id)) return null; // no duplicates
-
-    const label = { id, name, description };
-    all.push(label);
-    return label;
-  }
-
-  deleteLabel(userId, id) {
-    if (DEFAULT_LABELS.find(l => l.id === id)) return false; // permanent label
-    const all = this.getAllLabels(userId);
-    const index = all.findIndex(l => l.id === id);
-    if (index === -1) return false;
-    all.splice(index, 1);
-    return true;
-  }
-  
-  updateLabel(userId, id, newName) {
-  if (DEFAULT_LABELS.find(l => l.id === id)) return false; // cannot rename default labels
-
-  const all = this.getAllLabels(userId);
-  const label = all.find(l => l.id === id);
-  if (!label) return false;
-
-  // Check if another label with the same name already exists
-  const duplicate = all.find(l => l.name.toLowerCase() === newName.toLowerCase() && l.id !== id);
-  if (duplicate) return 'duplicate'; // special flag
-
-  label.name = newName;
-  return true;
 }
 
+  async getAllLabels(userId) {
+    await this.initDefaultLabels(userId);
+    return await Label.find({ userId }).sort({ order: 1 }).lean();
+  }
+
+  async getLabelById(userId, id) {
+    return await Label.findOne({ userId, id }).lean();
+  }
+
+  async createLabel(userId, name, description) {
+    const id = name.toLowerCase().replace(/\s+/g, '-');
+    const existing = await Label.findOne({ userId, id });
+    if (existing) return null;
+
+    const label = new Label({
+      id,
+      name,
+      description,
+      userId
+    });
+
+    return await label.save();
+  }
+
+  async deleteLabel(userId, id) {
+    if (DEFAULT_LABELS.find(l => l.id === id)) return false; // cannot delete system label
+    const deleted = await Label.deleteOne({ userId, id });
+    return deleted.deletedCount > 0;
+  }
+
+  async updateLabel(userId, id, newName) {
+    if (DEFAULT_LABELS.find(l => l.id === id)) return false;
+
+    const existing = await Label.findOne({ userId, id });
+    if (!existing) return false;
+
+    const duplicate = await Label.findOne({
+      userId,
+      name: newName,
+      id: { $ne: id }
+    });
+
+    if (duplicate) return 'duplicate';
+
+    existing.name = newName;
+    return await existing.save();
+  }
 }
 
 module.exports = new LabelService();

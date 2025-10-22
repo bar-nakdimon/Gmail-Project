@@ -1,4 +1,5 @@
 const userService = require('../services/UserService');
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 class UserController {
   /**
@@ -6,31 +7,32 @@ class UserController {
    * Saves uploaded avatar with a generated filename, or assigns a default avatar.
    */
   async register(req, res) {
-    const { username, password, name } = req.body;
-    const avatar = req.file;
-
-    // Basic input validation
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
-    }
-
-    // Check if username already exists
-    if (userService.getUserByUsername(username)) {
-      return res.status(409).json({ error: 'Username already exists' });
-    }
-
-    // Determine avatar URL:
-    // If an image was uploaded, use the saved file; otherwise use the default SVG
-    const avatarUrl = avatar
-      ? `http://localhost:3000/uploads/${avatar.filename}`
-      : `http://localhost:3000/uploads/default-avatar.svg`;
-
-    // Create user and return data (excluding password)
     try {
-      const user = userService.registerUser({ username, password, name, avatarUrl });
-      const { password: pwd, ...userData } = user;
+      let { username, password, name } = req.body;
+      const avatar = req.file;
+
+      if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+      }
+       username = username.trim() + '@gmail.com';
+
+      // Check if username already exists
+      const existing = await userService.getUserByUsername(username);
+      if (existing) {
+        return res.status(409).json({ error: 'Username already exists' });
+      }
+
+      const avatarUrl = avatar
+        ? `${BASE_URL}/uploads/${avatar.filename}`
+        : `${BASE_URL}/uploads/default-avatar.svg`;
+
+      const user = await userService.registerUser({ username, password, name, avatarUrl });
+      const plainUser = user.toJSON();
+      const { password: _, ...userData } = plainUser;
+
       res.status(201).json(userData);
     } catch (err) {
+      console.error('Failed to register user:', err);
       res.status(400).json({ error: err.message });
     }
   }
@@ -39,19 +41,24 @@ class UserController {
    * Retrieves user details by ID (GET /api/users/:id).
    * Excludes password from the response.
    */
-  getUserById(req, res) {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid user ID' });
-    }
+  async getUserById(req, res) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
 
-    const user = userService.getUserById(id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+      const user = await userService.getUserById(id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
 
-    const { password: pwd, ...userData } = user;
-    res.status(200).json(userData);
+      const { password: _, ...userData } = user;
+      res.status(200).json(userData);
+    } catch (err) {
+      console.error('Failed to fetch user by ID:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 }
 

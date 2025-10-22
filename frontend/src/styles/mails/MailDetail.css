@@ -34,32 +34,57 @@
   border-radius: 16px;
   padding: 4px 10px;
   font-size: 0.8rem;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   color: #111;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Dark mode default */
 .dark-mode .mail-label-chip {
   background-color: #2a2a2a;
   color: #eee;
 }
 
-.mail-label-remove {
-  background: none;
-  border: none;
-  color: #b71c1c;
-  font-weight: bold;
-  cursor: pointer;
-  margin-left: 6px;
+/* Custom label colors */
+.label-sent {
+  background-color: #81c784;
+}
+.label-received,
+.label-inbox {
+  background-color: #64b5f6;
+}
+.label-spam {
+  background-color: #e57373;
+}
+.label-trash {
+  background-color: #9e9e9e;
+}
+.label-star,
+.label-starred {
+  background-color: #ffd54f;
+}
+.label-read {
+  background-color: #aed581;
+}
+.label-unread {
+  background-color: #ba68c8;
+}
+.label-drafts {
+  background-color: #ffb74d;
 }
 
-.mail-body {
-  margin-top: 24px;
-  white-space: pre-wrap;
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-.dark-mode .mail-body {
-  color: #ddd;
+/* Override dark mode colors per label */
+.dark-mode .label-sent,
+.dark-mode .label-received,
+.dark-mode .label-inbox,
+.dark-mode .label-spam,
+.dark-mode .label-trash,
+.dark-mode .label-star,
+.dark-mode .label-starred,
+.dark-mode .label-read,
+.dark-mode .label-unread,
+.dark-mode .label-drafts {
+  color: #fff;
 }

@@ -1,109 +1,70 @@
 const User = require('../models/User');
+const getNextSequence = require('../utils/getNextSequence');
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 class UserService {
-  constructor() {
-    this.users = [];
-    this.nextId = 1;
-  }
-
-  /**
-   * Validates username format.
-   * Username must be 3-20 chars, letters, numbers, dots, underscores; 
-   * cannot start or end with dot or underscore.
-   */
   static isValidUsername(username) {
-    const usernameRegex = /^(?![_.])[a-zA-Z0-9._]{3,20}(?<![_.])$/;
+    const usernameRegex = /^(?![_.])[a-zA-Z0-9._]{3,20}(?<![_.])@gmail\.com$/;
     return usernameRegex.test(username);
   }
 
-  /**
-   * Validates password strength.
-   * Password must be at least 8 chars and include uppercase, lowercase, number, and special char.
-   */
   static isValidPassword(password) {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
     return passwordRegex.test(password);
   }
 
-  /**
-   * Registers a new user after validating all fields.
-   * Throws error if validation fails or username exists.
-   * @param {Object} data - { username, password, name, avatarUrl }
-   * @returns {User}
-   */
-  registerUser({ username, password, name, avatarUrl }) {
-    // Validate required fields presence
+  async registerUser({ username, password, name, avatarUrl }) {
     if (!username || !password || !name) {
       throw new Error('Missing required fields: username, password, and name are required.');
     }
 
-    // Validate username format
     if (!UserService.isValidUsername(username)) {
-      throw new Error('Invalid username format. Username must be 3-20 characters, letters, numbers, dots, underscores; no _ or . at start/end.');
+      throw new Error('Invalid username format.');
     }
 
-    // Validate password strength
     if (!UserService.isValidPassword(password)) {
       throw new Error('Password must be at least 8 characters and include uppercase, lowercase, number and special character.');
     }
 
-    // Validate name length (optional)
     if (name.length < 2 || name.length > 50) {
       throw new Error('Display name must be between 2 and 50 characters.');
     }
 
-    // Validate avatarUrl type if provided (optional)
     if (avatarUrl && typeof avatarUrl !== 'string') {
       throw new Error('Invalid avatar URL.');
     }
 
-    // Check if username already exists
-    if (this.users.find(u => u.username === username)) {
-      throw new Error('Username already exists');
-    }
+    const existing = await User.findOne({ username });
+    if (existing) throw new Error('Username already exists');
 
-    // Create and store the new user
-        const user = new User({
-          id: this.nextId++,
-          username,
-          password,  
-          name,
-          avatarUrl: avatarUrl || 'http://localhost:3000/uploads/default-avatar.svg',
-        });
+   const nextId = await getNextSequence('user');
 
-    this.users.push(user);
+    const user = new User({
+      id: nextId,
+      username,
+      password,
+      name,
+      avatarUrl: avatarUrl || 'http://localhost:3000/uploads/default-avatar.svg'
+    });
 
-    return user;
+    return await user.save();
   }
 
-    /**
-   * Verifies a user's credentials.
-   * @param {string} username
-   * @param {string} password
-   * @returns {User|null} The user if valid, otherwise null
-   */
-    verifyUser(username, password) {
-    return this.users.find(u => u.username === username && u.password === password) || null;
+
+   async verifyUser(username, password) {
+    return await User.findOne({ username, password }).lean();
   }
 
-  /**
-   * Retrieves a user by ID.
-   * @param {number} id
-   * @returns {User|null}
-   */
-  getUserById(id) {
-    return this.users.find(u => u.id === id) || null;
-  }
+async getUserById(id) {
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) return null;
 
-  /**
- * Retrieves a user by username.
- * @param {string} username
- * @returns {User|null}
- */
-  getUserByUsername(username) {
-    return this.users.find(u => u.username === username) || null;
-  }
+  return await User.findOne({ id: numericId }).lean();
+}
 
+   async getUserByUsername(username) {
+    return await User.findOne({ username }).lean();
+  }
 }
 
 module.exports = new UserService();

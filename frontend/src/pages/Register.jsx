@@ -19,9 +19,9 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  function isValidUsername(name) {
-    const usernameRegex = /^(?![_.])[a-zA-Z0-9._]{3,20}(?<![_.])$/;
-    return usernameRegex.test(name);
+  function isValidBaseUsername(name) {
+    const baseUsernameRegex = /^(?![_.])[a-zA-Z0-9._]{3,20}(?<![_.])$/;
+    return baseUsernameRegex.test(name);
   }
 
   function isValidPassword(pw) {
@@ -35,12 +35,12 @@ export default function Register() {
   }
 
   function handleUsernameChange(e) {
-    const val = e.target.value;
+    const val = e.target.value.trim().toLowerCase();
     setUsername(val);
     setUsernameError(
-      isValidUsername(val)
+      isValidBaseUsername(val)
         ? ''
-        : 'Username must be 3-20 characters, letters, numbers, dots, underscores; no _ or . at start/end'
+        : 'Username must be 3-20 chars, without special chars.'
     );
   }
 
@@ -111,7 +111,7 @@ export default function Register() {
       navigate('/login');
     } catch (err) {
       setError(err.message === 'Username already exists'
-        ? 'Username is already taken, please choose another one.'
+        ? 'This Gmail username is already taken.'
         : err.message || 'Registration failed');
     } finally {
       setLoading(false);
@@ -125,14 +125,18 @@ export default function Register() {
         {error && <div className="error-message">{error}</div>}
 
         <label htmlFor="username">Username:</label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={handleUsernameChange}
-          required
-          autoComplete="username"
-        />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={handleUsernameChange}
+            required
+            autoComplete="username"
+            style={{ flex: 1 }}
+          />
+          <span style={{ marginLeft: '12px' }}>@gmail.com</span>
+        </div>
         {usernameError && <small className="error-text">{usernameError}</small>}
 
         <label htmlFor="displayName">Display Name:</label>

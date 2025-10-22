@@ -1,4 +1,4 @@
-import { updateMailLabel, deleteMail } from '../services/mailService';
+import { updateMailLabel, deleteMail, getMailById } from '../services/mailService';
 
 export async function toggleStar(mail, token, logout, onUpdated) {
   const currentLabelIds = mail.labels?.map(l => (typeof l === 'string' ? l : l.id)) || [];
@@ -9,7 +9,8 @@ export async function toggleStar(mail, token, logout, onUpdated) {
     : [...new Set([...currentLabelIds, 'star'])];
 
   await updateMailLabel(token, mail.id, updatedLabels, logout);
-  if (onUpdated) onUpdated({ ...mail, labels: updatedLabels });
+  const refreshed = await getMailById(token, mail.id, logout);
+  if (onUpdated) onUpdated(refreshed);
 }
 
 export async function toggleRead(mail, token, logout, onUpdated) {
@@ -21,7 +22,8 @@ export async function toggleRead(mail, token, logout, onUpdated) {
     : [...new Set([...currentLabelIds.filter(id => id !== 'unread'), 'read'])];
 
   await updateMailLabel(token, mail.id, updatedLabels, logout);
-  if (onUpdated) onUpdated({ ...mail, labels: updatedLabels });
+  const refreshed = await getMailById(token, mail.id, logout);
+  if (onUpdated) onUpdated(refreshed);
 }
 
 export async function trashOrDelete(mail, token, logout, onDeleted, isTrashView = false) {
@@ -37,17 +39,28 @@ export async function trashOrDelete(mail, token, logout, onDeleted, isTrashView 
   const updatedLabels = [...currentLabelIds.filter(id => id !== 'received' && id !== 'sent'), 'trash'];
 
   await updateMailLabel(token, mail.id, updatedLabels, logout);
-  if (onDeleted) onDeleted(mail.id);
+  const refreshed = await getMailById(token, mail.id, logout);
+  if (onDeleted) onDeleted(mail.id); 
 }
 
 export async function restoreFromTrash(mail, user, token, logout, onUpdated) {
   const currentLabelIds = mail.labels?.map(l => (typeof l === 'string' ? l : l.id)) || [];
   const filtered = currentLabelIds.filter(l => l !== 'trash');
-  const isOwnedByUser = mail.fromUserId === user?.id;
-  const restored = isOwnedByUser
-    ? [...new Set([...filtered, 'sent', 'read'])]
-    : [...new Set([...filtered, 'received', 'read'])];
+
+  const isSender = mail.fromUserId === user?.id;
+  const isRecipient = mail.toUserId === user?.id;
+  const isSelfMail = isSender && isRecipient;
+
+  let restored;
+  if (isSelfMail) {
+    restored = [...new Set([...filtered, 'sent', 'received', 'read'])];
+  } else if (isSender) {
+    restored = [...new Set([...filtered, 'sent', 'read'])];
+  } else {
+    restored = [...new Set([...filtered, 'received', 'read'])];
+  }
 
   await updateMailLabel(token, mail.id, restored, logout);
-  if (onUpdated) onUpdated({ ...mail, labels: restored });
+  const refreshed = await getMailById(token, mail.id, logout);
+  if (onUpdated) onUpdated(refreshed);
 }
