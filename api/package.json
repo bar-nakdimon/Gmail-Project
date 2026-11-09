@@ -1,7 +1,7 @@
 {
-  "name": "ex-3",
+  "name": "gmail-project-api",
   "version": "1.0.0",
-  "description": "https://github.com/razemanoel/EX-2.git",
+  "description": "REST API server for Gmail-Project (Node.js, Express, MongoDB)",
   "main": "server.js",
   "directories": {
     "test": "tests"
@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/razemanoel/EX-3.git"
+    "url": "git+https://github.com/bar-nakdimon/Gmail-Project.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/razemanoel/EX-3/issues"
+    "url": "https://github.com/bar-nakdimon/Gmail-Project/issues"
   },
-  "homepage": "https://github.com/razemanoel/EX-3#readme",
+  "homepage": "https://github.com/bar-nakdimon/Gmail-Project#readme",
   "dependencies": {
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
