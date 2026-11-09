@@ -1,5 +1,9 @@
 #  Gmail-Project
 
+<img src="assets/banner.png" alt="Gmail-Project" width="100%">
+
+A full-stack email platform with web and Android clients, a Node.js REST API and a multithreaded C++ security server.
+
 
 ## Table of Contents
 - [Overview](#overview)
